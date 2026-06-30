@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recursero CABA 2026</title>
+  <style>
+    :root {
+      --ink: #17211b;
+      --muted: #5b665f;
+      --paper: #fffdf8;
+      --panel: #ffffff;
+      --line: #d9ded8;
+      --green: #1f6f4a;
+      --green-dark: #12452d;
+      --blue: #235f90;
+      --yellow: #f3c64f;
+      --soft-green: #edf7f0;
+      --soft-blue: #edf5fb;
+      --soft-yellow: #fff7dc;
+      --shadow: 0 12px 28px rgba(17, 34, 24, 0.09);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: #f6f7f3;
+      line-height: 1.45;
+    }
+
+    button, input, select { font: inherit; }
+
+    .topbar {
+      background: var(--green-dark);
+      color: white;
+      padding: 18px 0;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: var(--green-dark);
+      background: var(--yellow);
+      font-weight: 900;
+      font-size: 1.05rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2.6vw, 2rem);
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      color: #dce9df;
+      font-size: 0.98rem;
+    }
+
+    .source {
+      padding: 7px 10px;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      color: #eef8f0;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    main {
+      padding: 22px 0 42px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .guide {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .step {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px;
+      min-height: 82px;
+    }
+
+    .step strong {
+      display: block;
+      color: var(--green-dark);
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .filters {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr 0.9fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--green-dark);
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 10px 12px;
+    }
+
+    input:focus, select:focus {
+      outline: 3px solid rgba(31, 111, 74, 0.16);
+      border-color: var(--green);
+    }
+
+    .clear {
+      min-height: 46px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--green);
+      color: white;
+      padding: 0 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--soft-yellow);
+      color: #5b4200;
+      padding: 8px 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side, .results {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .side {
+      padding: 14px;
+      position: sticky;
+      top: 12px;
+    }
+
+    .side h2, .results h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      color: var(--green-dark);
+    }
+
+    .comuna-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .comuna-button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 9px 10px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .comuna-button.is-active {
+      border-color: var(--green);
+      background: var(--soft-green);
+      color: var(--green-dark);
+      font-weight: 800;
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .results {
+      padding: 15px;
+    }
+
+    .results-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 14px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .summary {
+      color: var(--muted);
+      margin: 4px 0 0;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      background: var(--soft-blue);
+      color: var(--blue);
+      border: 1px solid #c7dceb;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-weight: 800;
+      font-size: 0.88rem;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--green);
+      border-radius: 8px;
+      background: white;
+      padding: 13px;
+    }
+
+    .card[data-cat="alimentarse"] { border-left-color: #c49000; }
+    .card[data-cat="duchas"] { border-left-color: #147a87; }
+    .card[data-cat="ropero"] { border-left-color: #7b4ca0; }
+    .card[data-cat="servicios"] { border-left-color: #235f90; }
+    .card[data-cat="juridico"] { border-left-color: #8b2f39; }
+    .card[data-cat="organizaciones"] { border-left-color: #4b5f2a; }
+    .card[data-cat="subsidios"] { border-left-color: #1f6f4a; }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 1.03rem;
+      color: var(--ink);
+    }
+
+    .cat {
+      background: var(--soft-green);
+      color: var(--green-dark);
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 10px 0;
+    }
+
+    .meta span {
+      background: #f1f4ef;
+      border-radius: 999px;
+      padding: 5px 8px;
+      color: #3e4b43;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .info {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .info strong {
+      color: var(--green-dark);
+    }
+
+    .details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .details span {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 8px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      background: var(--paper);
+    }
+
+    .empty {
+      border: 1px dashed var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .subsidios {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      color: var(--green-dark);
+      font-size: 1.15rem;
+    }
+
+    .section-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .subsidio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .subsidio-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .subsidio-card h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 1rem;
+    }
+
+    .program-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .program-meta span,
+    .adultos {
+      background: #f1f4ef;
+      border-radius: 999px;
+      padding: 5px 8px;
+      color: #3e4b43;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .adultos {
+      display: inline-block;
+      width: fit-content;
+      background: var(--soft-green);
+      color: var(--green-dark);
+    }
+
+    .req-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+      font-size: 0.93rem;
+    }
+
+    .note-box {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .note-box strong {
+      display: block;
+      color: var(--green-dark);
+      margin-bottom: 3px;
+    }
+
+    .place-box {
+      margin-top: auto;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 8px;
+      padding: 11px;
+      color: var(--muted);
+      display: grid;
+      gap: 3px;
+      font-size: 0.93rem;
+    }
+
+    .place-box strong {
+      color: var(--green-dark);
+    }
+
+    @media (max-width: 900px) {
+      .guide, .filter-grid, .layout, .subsidio-grid { grid-template-columns: 1fr; }
+      .side { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap brand">
+      <div class="brand-title">
+        <div class="mark">RC</div>
+        <div>
+          <h1>Recursero CABA 2026</h1>
+          <p>Buscador por necesidad, comuna y barrio</p>
+        </div>
+      </div>
+      <div class="source">Datos extraídos del PDF 2026</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="guide" aria-label="Pasos de búsqueda">
+      <div class="step"><strong>1. Necesidad</strong><span>Escribí lo que se busca: dormir, comida, ducha, ropa, trámites, salud o asesoramiento.</span></div>
+      <div class="step"><strong>2. Comuna</strong><span>Elegí una comuna para abrir sus barrios y ubicar recursos cercanos.</span></div>
+      <div class="step"><strong>3. Barrio</strong><span>Filtrá por barrio dentro de la comuna seleccionada.</span></div>
+    </section>
+
+    <section class="filters">
+      <div class="filter-grid">
+        <label>
+          Buscar necesidad
+          <input id="needInput" type="search" placeholder="Ej: comida, dormir, ducha, ropero, jurídico" />
+        </label>
+        <label>
+          Comuna
+          <select id="comunaFilter"></select>
+        </label>
+        <label>
+          Barrio
+          <select id="barrioFilter"></select>
+        </label>
+        <button class="clear" id="clearBtn" type="button">Limpiar</button>
+      </div>
+      <div class="chips" id="quickChips"></div>
+    </section>
+
+    <section class="subsidios" id="subsidiosHabitacionales">
+      <div class="section-head">
+        <div>
+          <h2>Subsidios habitacionales</h2>
+          <p>Información importante para orientar trámites y documentación.</p>
+        </div>
+        <div class="badge">Programas destacados</div>
+      </div>
+
+      <div class="subsidio-grid">
+        <article class="subsidio-card">
+          <div>
+            <h3>Ciudadanía Porteña</h3>
+            <div class="program-meta"><span>Comuna 3</span></div>
+          </div>
+          <ul class="req-list">
+            <li>DNI.</li>
+            <li>DNI del grupo familiar. Si hay menores: partida de nacimiento, vacunas y certificado de alumno regular.</li>
+            <li>Constancia de dieta, si corresponde.</li>
+            <li>Certificado médico actualizado.</li>
+            <li>Todas las tarjetas de cobro.</li>
+            <li>Tickets de cobro: Pensión, Jubilación o Subsidios.</li>
+            <li>Informe social.</li>
+            <li>Negativa de ANSES.</li>
+            <li>Nota por derecho propio sellada en MDHyH.</li>
+          </ul>
+          <div class="place-box">
+            <strong>¿Dónde realizar el trámite?</strong>
+            <span>SALGUERO 979</span>
+            <span>Ciudad Autónoma de Buenos Aires.</span>
+          </div>
+        </article>
+
+        <article class="subsidio-card">
+          <div>
+            <h3>Subsidio habitacional</h3>
+            <div class="program-meta"><span>Comuna 1</span></div>
+          </div>
+          <ul class="req-list">
+            <li>DNI.</li>
+            <li>DNI del grupo familiar. Si hay menores: partida de nacimiento, vacunas y certificado de alumno regular.</li>
+            <li>CUD, si posee.</li>
+            <li>Certificado de salud actualizado.</li>
+            <li>Factura de alquiler.</li>
+          </ul>
+          <div class="note-box">
+            <strong>Si presenta recibo:</strong>
+            Agregar DNI y servicio del propietario, ABL o AySA.
+          </div>
+          <ul class="req-list">
+            <li>Tarjetas de cobro.</li>
+            <li>Ticket de cobro: Pensión, Jubilación o Subsidios.</li>
+            <li>Informe social.</li>
+            <li>Negativa de ANSES.</li>
+            <li>Nota por derecho propio.</li>
+          </ul>
+          <div class="place-box">
+            <strong>¿Dónde realizar el trámite?</strong>
+            <span>PAVÓN Y ENTRE RÍOS</span>
+            <span>Ciudad Autónoma de Buenos Aires.</span>
+          </div>
+        </article>
+
+        <article class="subsidio-card">
+          <div>
+            <h3>Vivir en Casa</h3>
+            <span class="adultos">EXCLUSIVO ADULTOS MAYORES</span>
+            <div class="program-meta"><span>Comuna 1</span></div>
+          </div>
+          <ul class="req-list">
+            <li>DNI.</li>
+            <li>DNI del grupo familiar. Si hay menores: partida de nacimiento, vacunas y certificado de alumno regular.</li>
+            <li>CUD, si posee.</li>
+            <li>Certificado de salud.</li>
+            <li>Factura de alquiler.</li>
+          </ul>
+          <div class="note-box">
+            <strong>Si presenta recibo:</strong>
+            Agregar DNI y servicio del propietario, ABL o AySA.
+          </div>
+          <ul class="req-list">
+            <li>Tarjetas de cobro.</li>
+            <li>Ticket de cobro: Pensión, Jubilación o Subsidios.</li>
+            <li>Informe social.</li>
+            <li>Negativa de ANSES.</li>
+            <li>Nota por derecho propio sellada en el Ministerio correspondiente.</li>
+          </ul>
+          <div class="place-box">
+            <strong>¿Dónde realizar el trámite?</strong>
+            <span>BELGRANO 878</span>
+            <span>Ciudad Autónoma de Buenos Aires.</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside class="side">
+        <h2>Comunas</h2>
+        <div class="comuna-list" id="comunaList"></div>
+      </aside>
+
+      <section class="results">
+        <div class="results-head">
+          <div>
+            <h2>Resultados</h2>
+            <p class="summary" id="summary"></p>
+          </div>
+          <div class="badge" id="badge">Sin filtro</div>
+        </div>
+        <div class="cards" id="cards"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="recursero-data.js"></script>
+  <script>
+    const COMUNAS = {
+      1: ["Retiro", "San Nicolás", "Puerto Madero", "San Telmo", "Montserrat", "Monserrat", "Constitución"],
+      2: ["Recoleta"],
+      3: ["Balvanera", "San Cristóbal"],
+      4: ["La Boca", "Barracas", "Parque Patricios", "Nueva Pompeya"],
+      5: ["Almagro", "Boedo"],
+      6: ["Caballito"],
+      7: ["Flores", "Parque Chacabuco"],
+      8: ["Villa Soldati", "Villa Riachuelo", "Villa Lugano"],
+      9: ["Liniers", "Mataderos", "Parque Avellaneda"],
+      10: ["Villa Real", "Monte Castro", "Versalles", "Floresta", "Vélez Sarsfield", "Villa Luro"],
+      11: ["Villa General Mitre", "Villa Devoto", "Villa del Parque", "Villa Santa Rita"],
+      12: ["Coghlan", "Saavedra", "Villa Urquiza", "Villa Pueyrredón"],
+      13: ["Núñez", "Belgrano", "Colegiales"],
+      14: ["Palermo"],
+      15: ["Chacarita", "Villa Crespo", "La Paternal", "Villa Ortúzar", "Agronomía", "Parque Chas"]
+    };
+
+    const NEEDS = [
+      { label: "Todos", value: "" },
+      { label: "Dormir", value: "dormir alojamiento cama hogar hotel" },
+      { label: "Comida", value: "comida alimentarse desayuno almuerzo merienda cena vianda alimentos comedor" },
+      { label: "Duchas", value: "ducha ducharse higiene baño" },
+      { label: "Ropa", value: "ropero ropa comunitario" },
+      { label: "Trámites", value: "tramites documentacion dni ciudadania ticket subsidio" },
+      { label: "Subsidios", value: "subsidio habitacional ciudadania vivir en casa alquiler" },
+      { label: "Asesoramiento jurídico", value: "juridico asesoramiento derecho patrocinio" }
+    ];
+
+    const PROGRAMAS_HABITACIONALES = [
+      {
+        categoria: "Subsidios habitacionales",
+        categoriaId: "subsidios",
+        nombre: "Ciudadanía Porteña",
+        direccion: "SALGUERO 979",
+        contacto: "",
+        comuna: "3",
+        barrio: "",
+        servicio: "Apoyo económico y acceso a prestaciones sociales. Requisitos: DNI, documentación del grupo familiar, constancia de dieta si corresponde, certificado médico actualizado, tarjetas y tickets de cobro, informe social, negativa de ANSES y nota por derecho propio sellada en MDHyH.",
+        horarios: "",
+        detalles: { tramite: "Ciudad Autónoma de Buenos Aires" },
+        pagina: "sección destacada"
+      },
+      {
+        categoria: "Subsidios habitacionales",
+        categoriaId: "subsidios",
+        nombre: "Subsidio habitacional",
+        direccion: "PAVÓN Y ENTRE RÍOS",
+        contacto: "",
+        comuna: "1",
+        barrio: "",
+        servicio: "Ayuda para alquiler. Requisitos: DNI, documentación del grupo familiar, CUD si posee, certificado de salud actualizado, factura de alquiler, tarjetas y tickets de cobro, informe social, negativa de ANSES y nota por derecho propio. Si presenta recibo, agregar DNI y servicio del propietario.",
+        horarios: "",
+        detalles: { tramite: "Ciudad Autónoma de Buenos Aires" },
+        pagina: "sección destacada"
+      },
+      {
+        categoria: "Subsidios habitacionales",
+        categoriaId: "subsidios",
+        nombre: "Vivir en Casa",
+        direccion: "BELGRANO 878",
+        contacto: "",
+        comuna: "1",
+        barrio: "",
+        servicio: "Programa exclusivo para adultos mayores. Requisitos: DNI, documentación del grupo familiar, CUD si posee, certificado de salud, factura de alquiler, tarjetas y tickets de cobro, informe social, negativa de ANSES y nota por derecho propio sellada en el Ministerio correspondiente. Si presenta recibo, agregar DNI y servicio del propietario.",
+        horarios: "",
+        detalles: { poblacion: "Adultos mayores", tramite: "Ciudad Autónoma de Buenos Aires" },
+        pagina: "sección destacada"
+      }
+    ];
+
+    const data = [...PROGRAMAS_HABITACIONALES, ...(Array.isArray(window.RECURSOS) ? window.RECURSOS : [])];
+    const needInput = document.getElementById("needInput");
+    const comunaFilter = document.getElementById("comunaFilter");
+    const barrioFilter = document.getElementById("barrioFilter");
+    const clearBtn = document.getElementById("clearBtn");
+    const quickChips = document.getElementById("quickChips");
+    const comunaList = document.getElementById("comunaList");
+    const summary = document.getElementById("summary");
+    const badge = document.getElementById("badge");
+    const cards = document.getElementById("cards");
+
+    function normalize(text) {
+      return String(text || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function itemText(item) {
+      return normalize([
+        item.categoria,
+        item.nombre,
+        item.direccion,
+        item.contacto,
+        item.barrio,
+        item.servicio,
+        item.horarios,
+        Object.values(item.detalles || {}).join(" ")
+      ].join(" "));
+    }
+
+    function itemComunas(item) {
+      return String(item.comuna || "").split(",").map(v => v.trim()).filter(Boolean);
+    }
+
+    function getBarriosForComuna(comuna) {
+      if (comuna === "todas") return ["todos"];
+      const oficiales = COMUNAS[comuna] || [];
+      const extra = data
+        .filter(item => itemComunas(item).includes(String(comuna)))
+        .map(item => item.barrio)
+        .flatMap(barrio => String(barrio || "").split(",").map(part => part.trim()))
+        .filter(Boolean);
+      return ["todos", ...new Set([...oficiales, ...extra].sort((a, b) => a.localeCompare(b, "es")))];
+    }
+
+    function populateFilters() {
+      comunaFilter.innerHTML = '<option value="todas">Todas las comunas</option>' +
+        Object.keys(COMUNAS).map(n => `<option value="${n}">Comuna ${n}</option>`).join("");
+      updateBarrioOptions();
+    }
+
+    function updateBarrioOptions() {
+      const selected = barrioFilter.value;
+      const barrios = getBarriosForComuna(comunaFilter.value);
+      barrioFilter.innerHTML = barrios.map(barrio => {
+        const label = barrio === "todos" ? "Todos los barrios" : barrio;
+        return `<option value="${barrio}">${label}</option>`;
+      }).join("");
+      barrioFilter.value = barrios.includes(selected) ? selected : "todos";
+    }
+
+    function populateChips() {
+      quickChips.innerHTML = NEEDS.map(item =>
+        `<button class="chip" type="button" data-value="${item.value}">${item.label}</button>`
+      ).join("");
+    }
+
+    function matchesNeed(item, query) {
+      const q = normalize(query);
+      if (!q) return true;
+      const haystack = itemText(item);
+      return q.split(" ").every(word => haystack.includes(word));
+    }
+
+    function matchesBarrio(item, barrio) {
+      if (barrio === "todos") return true;
+      return normalize(item.barrio) === normalize(barrio);
+    }
+
+    function filteredData() {
+      const comuna = comunaFilter.value;
+      const barrio = barrioFilter.value;
+      return data.filter(item => {
+        const byNeed = matchesNeed(item, needInput.value);
+        const byComuna = comuna === "todas" || itemComunas(item).includes(comuna);
+        return byNeed && byComuna && matchesBarrio(item, barrio);
+      });
+    }
+
+    function renderComunas() {
+      const q = needInput.value;
+      comunaList.innerHTML = Object.keys(COMUNAS).map(n => {
+        const count = data.filter(item => itemComunas(item).includes(n) && matchesNeed(item, q)).length;
+        const active = comunaFilter.value === n ? " is-active" : "";
+        return `<button class="comuna-button${active}" type="button" data-comuna="${n}">
+          <span>Comuna ${n}</span><span class="count">${count}</span>
+        </button>`;
+      }).join("");
+    }
+
+    function detailPills(item) {
+      const details = item.detalles || {};
+      return Object.entries(details)
+        .filter(([, value]) => value)
+        .map(([key, value]) => `<span>${labelFor(key)}: ${escapeHtml(value)}</span>`)
+        .join("");
+    }
+
+    function labelFor(key) {
+      return {
+        poblacion: "Población",
+        plazas: "Plazas",
+        tipo: "Tipo",
+        subsidio: "Subsidio",
+        presupuesto: "Presupuesto",
+        comprobante: "Comprobante"
+      }[key] || key;
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function displayName(item) {
+      return String(item.nombre || item.categoria || "Recurso")
+        .replace(/^¿DÓNDE\s+(DORMIR|ALIMENTARSE|DUCHARSE)\?\s*/i, "")
+        .trim() || item.categoria || "Recurso";
+    }
+
+    function renderResults() {
+      updateBarrioOptions();
+      const results = filteredData();
+      const comuna = comunaFilter.value;
+      const barrio = barrioFilter.value;
+      const q = needInput.value.trim();
+      const labels = [
+        q ? `Necesidad: ${q}` : null,
+        comuna !== "todas" ? `Comuna ${comuna}` : null,
+        barrio !== "todos" ? barrio : null
+      ].filter(Boolean);
+
+      summary.textContent = results.length === 1
+        ? "Se encontró 1 recurso."
+        : `Se encontraron ${results.length} recursos.`;
+      badge.textContent = labels.join(" / ") || "Sin filtro";
+      renderComunas();
+
+      if (!results.length) {
+        cards.innerHTML = '<div class="empty">No hay resultados con esos filtros. Probá con otra necesidad o elegí otra comuna.</div>';
+        return;
+      }
+
+      cards.innerHTML = results.slice(0, 180).map(item => `
+        <article class="card" data-cat="${escapeHtml(item.categoriaId)}">
+          <div class="card-top">
+            <h3>${escapeHtml(displayName(item))}</h3>
+            <span class="cat">${escapeHtml(item.categoria)}</span>
+          </div>
+          <div class="meta">
+            <span>Comuna ${escapeHtml(item.comuna)}</span>
+            ${item.barrio ? `<span>${escapeHtml(item.barrio)}</span>` : ""}
+            <span>${typeof item.pagina === "number" ? `PDF pág. ${escapeHtml(item.pagina)}` : escapeHtml(item.pagina)}</span>
+          </div>
+          <div class="info">
+            <div><strong>Dirección:</strong> ${escapeHtml(item.direccion)}</div>
+            ${item.contacto ? `<div><strong>Contacto:</strong> ${escapeHtml(item.contacto)}</div>` : ""}
+            ${item.servicio ? `<div><strong>Qué ofrece:</strong> ${escapeHtml(item.servicio)}</div>` : ""}
+            ${item.horarios ? `<div><strong>Días y horarios:</strong> ${escapeHtml(item.horarios)}</div>` : ""}
+          </div>
+          <div class="details">${detailPills(item)}</div>
+        </article>
+      `).join("") + (results.length > 180 ? '<div class="empty">Hay más resultados. Usá comuna, barrio o una palabra más específica para acotar la lista.</div>' : "");
+    }
+
+    comunaFilter.addEventListener("change", () => {
+      updateBarrioOptions();
+      renderResults();
+    });
+    barrioFilter.addEventListener("change", renderResults);
+    needInput.addEventListener("input", renderResults);
+    clearBtn.addEventListener("click", () => {
+      needInput.value = "";
+      comunaFilter.value = "todas";
+      updateBarrioOptions();
+      renderResults();
+    });
+    quickChips.addEventListener("click", event => {
+      const chip = event.target.closest(".chip");
+      if (!chip) return;
+      needInput.value = chip.dataset.value || "";
+      renderResults();
+    });
+    comunaList.addEventListener("click", event => {
+      const button = event.target.closest(".comuna-button");
+      if (!button) return;
+      comunaFilter.value = button.dataset.comuna;
+      updateBarrioOptions();
+      renderResults();
+    });
+
+    populateFilters();
+    populateChips();
+    renderResults();
+  </script>
+</body>
+</html>
